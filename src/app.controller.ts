@@ -389,6 +389,36 @@ export class AppController {
   }
 
   /**
+   * error notification
+   */
+  async errorNotification (err: any) {
+    try {
+      let msg = [[{
+        tag: 'text',
+        text: err.code + ': ' + err.message
+      }], [{
+        tag: 'at',
+        user_id: 'all'
+      }]]
+      const data = {
+        msg_type: "post",
+        content: {
+          post: {
+            zh_cn: {
+              title: "Error",
+              content: [...msg]
+            }
+          }
+        }
+      }
+      await axios.post(config.larkNotificationUrl, data)
+    }
+    catch (err) {
+      console.error(err)
+    }
+  }
+
+  /**
    * account balance reminder
    */
   @Cron(CronExpression.EVERY_10_MINUTES)
@@ -437,6 +467,7 @@ export class AppController {
     }
     catch (err) {
       console.error(err)
+      await this.errorNotification(err)
     }
   }
 
@@ -488,6 +519,7 @@ export class AppController {
     }
     catch (err) {
       console.error(err)
+      await this.errorNotification(err)
     }
   }
 

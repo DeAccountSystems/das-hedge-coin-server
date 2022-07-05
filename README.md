@@ -3,14 +3,14 @@
 ## build setup
 ```bash
 # install dependencies
-$ npm install
+$ yarn install
 
 # serve with hot reload at localhost:24000
-$ npm run dev
+$ yarn run dev
 
 # build for production and launch server
-$ npm run build
-$ npm run start
+$ yarn run build
+$ yarn run start
 ```
 
 ## API

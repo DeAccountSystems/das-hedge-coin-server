@@ -50,6 +50,7 @@ export class AppController {
       return price
     }
     catch (err) {
+      console.log('======exchangeRate=======')
       console.error(err)
       throw err
     }
@@ -65,6 +66,7 @@ export class AppController {
       return tether.cny
     }
     catch (err) {
+      console.log('======usdtExchangeRate=======')
       console.error(err)
       throw err
     }
@@ -84,6 +86,7 @@ export class AppController {
       return res
     }
     catch (err) {
+      console.log('======tradingSpecificationInfo=======')
       console.error(err)
       throw err
     }
@@ -125,6 +128,7 @@ export class AppController {
       }
     }
     catch (err) {
+      console.log('======submitOrderInfo=======')
       console.error(err)
       return {
         code: errno.errorMysqlInsert,
@@ -156,6 +160,7 @@ export class AppController {
       }
     }
     catch (err) {
+      console.log('======tokenBalance=======')
       console.error(err)
       return {
         code: errno.internalServerError,
@@ -179,7 +184,9 @@ export class AppController {
       }
     }
     catch (err) {
+      console.log('======usdtToUsdt=======')
       console.error(err)
+      throw err
     }
   }
 
@@ -210,8 +217,10 @@ export class AppController {
       void this.notification(`Fiat currency ${fiatCurrency}`, 'USDT', totalAmount.toFixed(FIAT_DECIMAL_PLACES))
     }
     catch (err) {
+      console.log('======fiatCurrencyToUsdt=======')
       console.error(err)
       void this.notification(`Fiat currency ${fiatCurrency}`, 'USDT', totalAmount.toFixed(FIAT_DECIMAL_PLACES), true)
+      throw err
     }
   }
 
@@ -267,8 +276,10 @@ export class AppController {
       }
     }
     catch (err) {
+      console.log('======tokenToUsdt=======')
       console.error(err)
       void this.notification(tradingPair.replace('USDT', ''), 'USDT', totalAmount.toFixed(TOKEN_DECIMAL_PLACES), true)
+      throw err
     }
   }
 
@@ -331,8 +342,10 @@ export class AppController {
       }
     }
     catch (err) {
+      console.log('======usdtToCKB=======')
       console.error(err)
       void this.notification('USDT', 'CKB', totalAmount.toFixed(TOKEN_DECIMAL_PLACES), true)
+      throw err
     }
   }
 
@@ -341,20 +354,15 @@ export class AppController {
    * @param from tokens that need to be hedged
    * @param to hedging target tokens
    * @param amount hedge amount
+   * @param fail
    */
   async notification (from: string, to: string, amount: string | number, fail: boolean = false) {
     try {
-      if (!from || !to || !amount) {
-        const error: any = new Error('notification: param error')
-        error.code = errno.paramError
-        throw error
-      }
-
       const url = config.larkNotificationUrl
 
       if (fail) {
         await axios.post(url, {
-          msg_type: "post",
+          msg_type: 'post',
           content: {
             post: {
               zh_cn: {
@@ -384,6 +392,7 @@ export class AppController {
       }
     }
     catch (err) {
+      console.log('======notification=======')
       console.error(err)
     }
   }
@@ -393,7 +402,7 @@ export class AppController {
    */
   async errorNotification (err: any) {
     try {
-      let msg = [[{
+      const msg = [[{
         tag: 'text',
         text: err.code + ': ' + err.message
       }], [{
@@ -401,11 +410,11 @@ export class AppController {
         user_id: 'all'
       }]]
       const data = {
-        msg_type: "post",
+        msg_type: 'post',
         content: {
           post: {
             zh_cn: {
-              title: "Error",
+              title: 'Error',
               content: [...msg]
             }
           }
@@ -414,6 +423,7 @@ export class AppController {
       await axios.post(config.larkNotificationUrl, data)
     }
     catch (err) {
+      console.log('======errorNotification=======')
       console.error(err)
     }
   }
@@ -452,11 +462,11 @@ export class AppController {
       }
 
       const data = {
-        msg_type: "post",
+        msg_type: 'post',
         content: {
           post: {
             zh_cn: {
-              title: "Account balance:",
+              title: 'Account balance:',
               content: [...msg]
             }
           }
@@ -466,6 +476,7 @@ export class AppController {
       await axios.post(config.larkNotificationUrl, data)
     }
     catch (err) {
+      console.log('======balanceNotification=======')
       console.error(err)
       await this.errorNotification(err)
     }
@@ -518,19 +529,21 @@ export class AppController {
       await this.usdtToCKB()
     }
     catch (err) {
+      console.log('======hedgeCoin=======')
       console.error(err)
       await this.errorNotification(err)
     }
   }
 
-  // @Get('/test')
-  // async test () {
-  //   try {
-  //     const res = await this.hedgeCoin()
-  //     console.log(res)
-  //   }
-  //   catch (err) {
-  //     console.error(err)
-  //   }
-  // }
+  @Get('/test')
+  async test () {
+    try {
+      const res = await this.hedgeCoin()
+      console.log(res)
+    }
+    catch (err) {
+      console.log('======test=======')
+      console.error(err)
+    }
+  }
 }
